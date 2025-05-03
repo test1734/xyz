@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_WORDS 1000
+#define MAX_WORD_LEN 100
+
+typedef struct {
+    char word[MAX_WORD_LEN];
+    int count;
+} WordCount;
+
+
+int find_word(WordCount wc[], int size, const char *word) {
+    for (int i = 0; i < size; i++) {
+        if (strcmp(wc[i].word, word) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+void map_reduce_word_count(const char *text) {
+    WordCount wc[MAX_WORDS];
+    int word_count = 0;
+
+    char temp[strlen(text) + 1];
+    strcpy(temp, text);
+
+    char *token = strtok(temp, " ,.-\n\t");
+    while (token != NULL) {
+        int index = find_word(wc, word_count, token);
+        if (index >= 0) {
+            wc[index].count++; // Reduce step: update count
+        } else {
+            strcpy(wc[word_count].word, token);
+            wc[word_count].count = 1; // Map step: add new word
+            word_count++;
+        }
+        token = strtok(NULL, " ,.-\n\t");
+    }
+
+    printf("Word Count Result:\n");
+    for (int i = 0; i < word_count; i++) {
+        printf("%s: %d\n", wc[i].word, wc[i].count);
+    }
+}
+
+int main() {
+    const char *input_text = "hello world map reduce hello map reduce hello";
+    map_reduce_word_count(input_text);
+    return 0;
+}
